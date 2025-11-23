@@ -498,6 +498,7 @@ build-meson static fontations:
     FC_BUILDSYS: meson
     FC_BUILD_TYPE: static
     FC_BUILD_ENABLED: fontations
+    FC_BUILD_DISABLED: freetype
   needs:
     - fedora:rawhide@container-prep
 
