@@ -118,10 +118,10 @@ usage (char *program, int error)
 #if HAVE_GETOPT_LONG
     fprintf (file, _("  -E, --error-on-no-fonts  raise an error if no fonts in a directory\n"));
     fprintf (file, _("  -f, --force              scan directories with apparently valid caches\n"));
-    fprintf (file, _("  -n, --no-sleep           don't wait two seconds before exiting\n"));
     fprintf (file, _("  -r, --really-force       erase all existing caches, then rescan\n"));
     fprintf (file, _("  -s, --system-only        scan system-wide directories only\n"));
     fprintf (file, _("  -y, --sysroot=SYSROOT    prepend SYSROOT to all paths for scanning\n"));
+    fprintf (file, _("  -n, --no-sleep           (DANGEROUS) remove the waiting that ensures correct timestamps\n"));
     fprintf (file, _("  -v, --verbose            display status information while busy\n"));
     fprintf (file, _("  -V, --version            display font config version and exit\n"));
     fprintf (file, _("  -h, --help               display this help and exit\n"));
@@ -129,10 +129,10 @@ usage (char *program, int error)
     fprintf (file, _("  -E         (error-on-no-fonts)\n"));
     fprintf (file, _("                       raise an error if no fonts in a directory\n"));
     fprintf (file, _("  -f         (force)   scan directories with apparently valid caches\n"));
-    fprintf (file, _("  -n        (no-sleep) don't wait two seconds before exiting\n"));
     fprintf (file, _("  -r,   (really force) erase all existing caches, then rescan\n"));
     fprintf (file, _("  -s         (system)  scan system-wide directories only\n"));
     fprintf (file, _("  -y SYSROOT (sysroot) prepend SYSROOT to all paths for scanning\n"));
+    fprintf (file, _("  -n        (no-sleep) (DANGEROUS) remove the waiting that ensures correct timestamps\n"));
     fprintf (file, _("  -v         (verbose) display status information while busy\n"));
     fprintf (file, _("  -V         (version) display font config version and exit\n"));
     fprintf (file, _("  -h         (help)    display this help and exit\n"));
