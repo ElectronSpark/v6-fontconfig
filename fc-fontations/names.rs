@@ -32,7 +32,7 @@ use fcint_bindings::{
 };
 use fontconfig_bindings::{
     FC_FAMILY_EMOJI, FC_FAMILY_MATH, FC_FAMILY_MONO, FC_FAMILY_SANS, FC_FAMILY_SERIF,
-    FC_FAMILY_UNKNOWN,
+    FC_FAMILY_SYSTEM_UI, FC_FAMILY_UNKNOWN,
 };
 
 use crate::{name_records::FcSortedNameRecords, FcPatternBuilder, InstanceMode, PatternElement};
@@ -186,6 +186,16 @@ fn get_generic_family(family_name: &CStr) -> i32 {
     .unwrap_or(FC_FAMILY_UNKNOWN) as i32
 }
 
+fn get_generic_ui_family(family_name: &CStr) -> i32 {
+    family_name
+        .to_string_lossy()
+        .into_owned()
+        .to_lowercase()
+        .contains("ui")
+        .then_some(FC_FAMILY_SYSTEM_UI)
+        .unwrap_or(FC_FAMILY_UNKNOWN) as i32
+}
+
 pub fn add_names(
     font: &FontRef,
     font_file: &Path,
@@ -281,13 +291,29 @@ pub fn add_names(
 
     // Determine generic family and append.
     let generic_family = pattern
+        .clone()
         .family_names()
         .find_map(|family_name| {
             let id = get_generic_family(family_name);
-            if id != FC_FAMILY_UNKNOWN as i32 {
-                Some(id)
+            let uiid = get_generic_ui_family(family_name);
+            if uiid == FC_FAMILY_SYSTEM_UI as i32 {
+                if id <= FC_FAMILY_MONO as i32 {
+                    if id + uiid != uiid {
+                        pattern.append_element(PatternElement::new(
+                            FC_GENERIC_FAMILY_OBJECT as i32,
+                            uiid.into(),
+                        ));
+                    }
+                    Some(id + uiid)
+                } else {
+                    Some(id)
+                }
             } else {
-                None
+                if id != FC_FAMILY_UNKNOWN as i32 {
+                    Some(id)
+                } else {
+                    None
+                }
             }
         })
         .unwrap_or(FC_FAMILY_UNKNOWN as i32);

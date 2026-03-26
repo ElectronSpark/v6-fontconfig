@@ -2077,13 +2077,16 @@ FcFreeTypeQueryFaceInternal (const FT_Face   face,
     {
 	FcPatternElt *elt;
 	FcValueListPtr l;
-	int generic_family = FC_FAMILY_UNKNOWN;
+	int generic_family = FC_FAMILY_UNKNOWN, ui = FC_FAMILY_UNKNOWN;
 
 	elt = FcPatternObjectFindElt (pat, FC_FAMILY_OBJECT);
 	for (l = FcPatternEltValues (elt); l; l = FcValueListNext (l)) {
 	    FcValue v = FcValueCanonicalize (&l->value);
 
 	    if (v.type == FcTypeString) {
+		if (FcStrStrIgnoreCase (v.u.s, (FcChar8 *)"ui")) {
+		    ui = FC_FAMILY_SYSTEM_UI;
+		}
 		if (FcStrStrIgnoreCase (v.u.s, (FcChar8 *)"mono")) {
 		    generic_family = FC_FAMILY_MONO;
 		    break;
@@ -2102,7 +2105,14 @@ FcFreeTypeQueryFaceInternal (const FT_Face   face,
 		}
 	    }
 	}
-	FcPatternObjectAddInteger(pat, FC_GENERIC_FAMILY_OBJECT, generic_family);
+	if (ui == FC_FAMILY_SYSTEM_UI) {
+	    if (generic_family <= FC_FAMILY_MONO) {
+		generic_family += ui;
+		if (generic_family != ui)
+		    FcPatternObjectAddInteger (pat, FC_GENERIC_FAMILY_OBJECT, ui);
+	    }
+	}
+	FcPatternObjectAddInteger (pat, FC_GENERIC_FAMILY_OBJECT, generic_family);
     }
 
     /*
