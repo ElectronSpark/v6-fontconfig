@@ -13,6 +13,15 @@ if __name__=='__main__':
     parser.add_argument('links', nargs='+')
     args = parser.parse_args()
 
+    if os.path.isabs(args.availpath):
+        destdir = os.environ.get('DESTDIR')
+        if destdir:
+            availpath = str(PurePath(destdir, *PurePath(args.availpath).parts[1:]))
+        else:
+            availpath = args.availpath
+    else:
+        availpath = os.path.join(os.environ['MESON_INSTALL_DESTDIR_PREFIX'], args.availpath)
+
     if os.path.isabs(args.confpath):
         destdir = os.environ.get('DESTDIR')
         if destdir:
@@ -26,8 +35,22 @@ if __name__=='__main__':
     if not os.path.exists(confpath):
         os.makedirs(confpath)
 
+    # xv6's currently staged fontconfig/libxml path cannot parse these newer
+    # snippets cleanly, and stale incremental installs leave them reachable via
+    # XDG_DATA_DIRS even when they are no longer active conf.d links.
+    for name in ('48-guessfamily.conf', '49-sansserif.conf'):
+        try:
+            os.remove(os.path.join(availpath, name))
+        except FileNotFoundError:
+            pass
+
+    for name in os.listdir(confpath):
+        path = os.path.join(confpath, name)
+        if name.endswith('.conf') and os.path.islink(path):
+            os.remove(path)
+
     for link in args.links:
-        src = os.path.join(args.availpath, link)
+        src = os.path.join(availpath, link)
         dst = os.path.join(confpath, link)
         try:
             os.remove(dst)
